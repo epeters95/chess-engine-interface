@@ -1,24 +1,36 @@
 from stockfish import Stockfish
+from flask import Flask, request
+app = Flask(__name__)
 
-settings = {
-  "Debug Log File": "",
-  "Contempt": 0,
-  "Min Split Depth": 0,
-  "Threads": 1, # More threads will make the engine stronger, but should be kept at less than the number of logical processors on your computer.
-  "Ponder": "false",
-  "Hash": 16, # Default size is 16 MB. It's recommended that you increase this value, but keep it as some power of 2. E.g., if you're fine using 2 GB of RAM, set Hash to 2048 (11th power of 2).
-  "MultiPV": 1,
-  "Skill Level": 20,
-  "Move Overhead": 10,
-  "Minimum Thinking Time": 20,
-  "Slow Mover": 100,
-  "UCI_Chess960": "false",
-  "UCI_LimitStrength": "false",
-  "UCI_Elo": 1350
-}
 
-stockfish = Stockfish(path="./stockfish/stockfish-ubuntu-x86-64-sse41-popcnt")
+@app.post('/choose_move')
+def choose_move():
 
-# string = stockfish.get_board_visual()
+  level = int(request.form['level'])
 
-# print(string)
+  # Setup Stockfish
+  settings = {
+    "Debug Log File": "",
+    "Contempt": 0,
+    "Min Split Depth": 0,
+    "Threads": 1,
+    # More threads will make the engine stronger, but should be kept at less than the number of logical processors on your computer.
+    "Ponder": "false",
+    "Hash": 16,
+    # Default size is 16 MB. It's recommended that you increase this value, but keep it as some power of 2. E.g., if you're fine using 2 GB of RAM, set Hash to 2048 (11th power of 2).
+    "MultiPV": 1,
+    "Skill Level": level,
+    "Move Overhead": 10,
+    "Minimum Thinking Time": 20,
+    "Slow Mover": 100,
+    "UCI_Chess960": "false",
+  }
+  stockfish = Stockfish(path="./stockfish/stockfish-ubuntu-x86-64-sse41-popcnt", params=settings)
+
+  # Setup pieces with given move history
+  move_history = request.form['move_history'].split(",")
+  stockfish.set_position(move_history)
+
+  return {
+    "move": stockfish.get_best_move()
+  }
