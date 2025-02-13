@@ -6,7 +6,8 @@ app = Flask(__name__)
 @app.post('/choose_move')
 def choose_move():
 
-  level = int(request.form['level'])
+  data = request.json
+  level = int(data.get('level'))
 
   # Setup Stockfish
   settings = {
@@ -25,10 +26,10 @@ def choose_move():
     "Slow Mover": 100,
     "UCI_Chess960": "false",
   }
-  stockfish = Stockfish(path="./stockfish/stockfish-ubuntu-x86-64-sse41-popcnt", params=settings)
+  stockfish = Stockfish(path="./stockfish/stockfish-ubuntu-x86-64-sse41-popcnt", parameters=settings)
 
   # Setup pieces with given move history
-  move_history = request.form['move_history'].split(",")
+  move_history = data.get('move_history').split(",")
   stockfish.set_position(move_history)
 
   return {
