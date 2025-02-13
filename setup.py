@@ -17,7 +17,7 @@ settings = {
   "UCI_Elo": 1350
 }
 
-stockfish = Stockfish(path="./stockfish/stockfish-windows-x86-64-sse41-popcnt.exe")
+stockfish = Stockfish(path="./stockfish/stockfish-ubuntu-x86-64-sse41-popcnt")
 
 # string = stockfish.get_board_visual()
 
