@@ -26,14 +26,14 @@ def choose_move():
     "Slow Mover": 100,
     "UCI_Chess960": "false",
   }
-  stockfish = Stockfish(path="./stockfish-ubuntu-x86-64-sse41-popcnasdft", parameters=settings)
+  stockfish = Stockfish(path="./stockfish-ubuntu-x86-64-sse41-popcnt", parameters=settings)
 
   # Setup pieces with given move history
-  move_history = data.get('move_history').split(",")
-  stockfish.set_position(move_history)
+  move_history_str = data.get('move_history')
+  stockfish.set_position(move_history_str.split(","))
   move = stockfish.get_best_move()
 
-  print("Move history given: " + move_history)
+  print("Move history given: " + move_history_str)
   print("Move chosen: " + move)
 
   return {
