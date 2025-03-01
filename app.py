@@ -8,25 +8,12 @@ def choose_move():
 
   data = request.json
   level = int(data.get('level'))
+  print(data.get('level'))
 
   # Setup Stockfish
-  settings = {
-    "Debug Log File": "",
-    "Contempt": 0,
-    "Min Split Depth": 0,
-    "Threads": 1,
-    # More threads will make the engine stronger, but should be kept at less than the number of logical processors on your computer.
-    "Ponder": "false",
-    "Hash": 16,
-    # Default size is 16 MB. It's recommended that you increase this value, but keep it as some power of 2. E.g., if you're fine using 2 GB of RAM, set Hash to 2048 (11th power of 2).
-    "MultiPV": 1,
-    "Skill Level": level,
-    "Move Overhead": 10,
-    "Minimum Thinking Time": 20,
-    "Slow Mover": 100,
-    "UCI_Chess960": "false",
-  }
-  stockfish = Stockfish(path="./stockfish-ubuntu-x86-64-sse41-popcnt", parameters=settings)
+  settings = default_settings()
+  settings["Skill Level"] = level
+  stockfish = setup_stockfish(settings)
 
   # Setup pieces with given move history
   move_history_str = data.get('move_history')
@@ -39,3 +26,65 @@ def choose_move():
   return {
     "move": move
   }
+
+@app.post('/get_eval')
+def get_eval():
+
+  data = request.json
+
+  stockfish = setup_stockfish(default_settings())
+
+  move_history_str = data.get('move_history')
+  stockfish.set_position(move_history_str.split(","))
+
+  ev = stockfish.get_evaluation()
+
+  return {
+    "adv_white": ev["value"]
+  }
+
+@app.post('/get_eval_list')
+def get_eval_list():
+
+  data = request.json
+
+  stockfish = setup_stockfish(default_settings())
+
+  move_history_str = data.get('move_history')
+  moves_remaining = move_history_str.split(",")
+  moves_remaining.reverse()
+
+  moves_sofar = []
+  evals = []
+
+
+  while len(moves_remaining) > 0:
+    moves_sofar.append(moves_remaining[-1])
+    moves_remaining.pop()
+    stockfish.set_position(moves_sofar)
+    evals.append(stockfish.get_evaluation())
+
+  return {
+    "move_evals": list(map(lambda ev: ev["value"], evals))
+  }
+
+
+def default_settings():
+  return {
+    "Debug Log File": "",
+    "Contempt": 0,
+    "Min Split Depth": 0,
+    "Threads": 1,
+    # More threads will make the engine stronger, but should be kept at less than the number of logical processors on your computer.
+    "Ponder": "false",
+    "Hash": 16,
+    # Default size is 16 MB. It's recommended that you increase this value, but keep it as some power of 2. E.g., if you're fine using 2 GB of RAM, set Hash to 2048 (11th power of 2).
+    "MultiPV": 1,
+    "Move Overhead": 10,
+    "Minimum Thinking Time": 20,
+    "Slow Mover": 100,
+    "UCI_Chess960": "false",
+  }
+
+def setup_stockfish(settings):
+  return Stockfish(path="./stockfish-ubuntu-x86-64-sse41-popcnt", parameters=settings)
