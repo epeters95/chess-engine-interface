@@ -64,8 +64,19 @@ def get_eval_list():
     stockfish.set_position(moves_sofar)
     evals.append(stockfish.get_evaluation())
 
+
+  def map_ev(ev):
+    if ev["type"] == "cp":
+      return ev["value"]
+    elif ev["type"] == "mate":
+      sign = 1 if ev["value"] >= 0 else -1
+      return ((sign * 12) - ev["value"]) * 180
+    return 0
+
+  move_evals = list(map(map_ev, evals))
+
   return {
-    "move_evals": list(map(lambda ev: ev["value"], evals))
+    "move_evals": move_evals
   }
 
 
