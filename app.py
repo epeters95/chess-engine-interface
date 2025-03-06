@@ -8,12 +8,17 @@ def choose_move():
 
   data = request.json
   level = int(data.get('level'))
+  elo_rating = data.get('elo_rating')
+  print("Level chosen:")
   print(data.get('level'))
 
   # Setup Stockfish
   settings = default_settings()
   settings["Skill Level"] = level
   stockfish = setup_stockfish(settings)
+
+  if elo_rating:
+    stockfish.set_elo_rating(int(elo_rating))
 
   # Setup pieces with given move history
   move_history_str = data.get('move_history')
