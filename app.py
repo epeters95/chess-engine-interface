@@ -3,6 +3,11 @@ from flask import Flask, request
 app = Flask(__name__)
 
 
+# Get the best move given a position and skill level
+# Params:
+#   level - the stockfish skill level (1-20)
+#   elo_rating - the desired elo rating to emulate (0-3200)
+#   move_history - comma-separated list of moves denoted by UCI
 @app.post('/choose_move')
 def choose_move():
 
@@ -32,6 +37,11 @@ def choose_move():
     "move": move
   }
 
+# Get the estimated advantage for white in centipawns, given a position
+# Params
+#   move_history - moves played so far in comma-separated UCI
+# Returns
+#   JSON object e.g. { "adv_white": 3 }
 @app.post('/get_eval')
 def get_eval():
 
@@ -42,18 +52,29 @@ def get_eval():
   move_history_str = data.get('move_history')
   stockfish.set_position(move_history_str.split(","))
 
+  print("Evaluating position for move history: " + move_history_str)
+
   ev = stockfish.get_evaluation()
+
+  print("Evaluated advantage white: " + map_ev(ev))
 
   return {
     "adv_white": map_ev(ev)
   }
 
+# Get the advantage white evaluation for each move in a list
+# Params
+#   - move_history - moves played so far in comma-separated UCI
+# Returns
+#   JSON object e.g. { "move_evals": [ { "adv_white": 3 }, ... ] }
 @app.post('/get_eval_list')
 def get_eval_list():
 
   data = request.json
 
   stockfish = setup_stockfish(default_settings())
+
+  print("Evaluating all positions for move history: " + move_history_str)
 
   move_history_str = data.get('move_history')
   moves_remaining = move_history_str.split(",")
@@ -75,6 +96,8 @@ def get_eval_list():
     "move_evals": move_evals
   }
 
+# Helper function to "normalize" the evaluation units to centipawn values
+# If there is mate in x moves, the centipawn advantage is substantial
 def map_ev(ev):
   if ev["type"] == "cp":
     return ev["value"]
@@ -83,6 +106,7 @@ def map_ev(ev):
     return ((sign * 12) - ev["value"]) * 180
   return 0
 
+# Settings for Python Stockfish library
 def default_settings():
   return {
     "Debug Log File": "",
