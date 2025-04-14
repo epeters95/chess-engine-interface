@@ -74,9 +74,10 @@ def get_eval_list():
 
   stockfish = setup_stockfish(default_settings())
 
+  move_history_str = data.get('move_history')
+
   print("Evaluating all positions for move history: " + move_history_str)
 
-  move_history_str = data.get('move_history')
   moves_remaining = move_history_str.split(",")
   moves_remaining.reverse()
 
