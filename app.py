@@ -129,6 +129,16 @@ def map_ev(ev):
     return ((sign * 12) - ev["value"]) * 180
   return 0
 
+
+# Test endpoint to check if the service is running
+@app.get('/status')
+def get_status():
+
+  if (stockfish):
+    return {
+      "status": "ok"
+    }
+
 # Settings for Python Stockfish library
 def default_settings():
   return {
