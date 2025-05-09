@@ -133,11 +133,18 @@ def map_ev(ev):
 # Test endpoint to check if the service is running
 @app.get('/status')
 def get_status():
-  stockfish = setup_stockfish(default_settings())
 
-  if (stockfish):
+  try:
+    stockfish = setup_stockfish(default_settings())
+
+    if (stockfish):
+      return {
+        "status": "ok"
+      }
+
+  except:
     return {
-      "status": "ok"
+      "status": "error"
     }
 
 # Settings for Python Stockfish library
