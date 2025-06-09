@@ -36,8 +36,8 @@ def choose_move():
   data = request.json
   level = int(data.get('level'))
   elo_rating = data.get('elo_rating')
-  print("Level chosen:")
-  print(data.get('level'))
+  print(f"Level chosen: {level}")
+  print(f"Elo chosen: {elo_rating}")
 
   # Setup Stockfish
   settings = default_settings()
@@ -52,8 +52,8 @@ def choose_move():
   stockfish.set_position(move_history_str.split(","))
   move = stockfish.get_best_move()
 
-  print("Move history given: " + move_history_str)
-  print("Move chosen: " + move)
+  print(f"Move history given: {move_history_str}")
+  print(f"Move chosen: {move}")
 
   return {
     "move": move
@@ -74,11 +74,11 @@ def get_eval():
   move_history_str = data.get('move_history')
   stockfish.set_position(move_history_str.split(","))
 
-  print("Evaluating position for move history: " + move_history_str)
+  print(f"Evaluating position for move history: {move_history_str}")
 
   ev = stockfish.get_evaluation()
 
-  print("Evaluated advantage white: " + map_ev(ev))
+  print(f"Evaluated advantage white: {map_ev(ev)}")
 
   return {
     "adv_white": map_ev(ev)
@@ -98,7 +98,7 @@ def get_eval_list():
 
   move_history_str = data.get('move_history')
 
-  print("Evaluating all positions for move history: " + move_history_str)
+  print(f"Evaluating all positions for move history: {move_history_str}")
 
   moves_remaining = move_history_str.split(",")
   moves_remaining.reverse()
