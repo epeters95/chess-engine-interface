@@ -137,9 +137,13 @@ def get_status():
   try:
     stockfish = setup_stockfish(default_settings())
 
-    if (stockfish):
+    if stockfish is not None:
       return {
         "status": "ok"
+      }
+    else:
+      return {
+        "status": "reset"
       }
 
   except:
